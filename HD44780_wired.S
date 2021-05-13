@@ -407,3 +407,5 @@ led_on:				;
 	rcall led_init		;
         sbi PORTD, PD7          ; D7 high
 ret				;
+
+.end
