@@ -1,3 +1,6 @@
+; пятый порт не поднимается, поэтому может вместо прописной заглавная выводиться
+; и тут нужен осциллограф или в точке интереса
+; прокомментировать состояние всех выводов интерфейса
 
 ; Copyright (c) 2021 ozforester. All rights reserved.
 ; Use of this source code is goverened by a MIT license
@@ -37,98 +40,118 @@ main:				;
 	rcall ports_init	;
 	rcall lcd_init		;
 	rcall lcd_hello		;
-        ;rcall led_on            ;
+        rcall led_on            ; no hanging
 	loop:			;
 	rjmp loop 		;
 ret				;
 
 lcd_hello:			;
-	rcall rs_out_high	;
-	rcall rw_out_low	;
-	; H
+
+	; H			; 01001000
+        rcall rs_out_high       ;
+        rcall rw_out_low        ;
         rcall all_data_out      ; 0000
 	rcall d6_out_high	; 0100
-	rcall e_pulse		;
-	rcall all_data_in	;
-        rcall rs_out_low       ;
-	rcall wait_bf		;
-        rcall rs_out_high       ;
-	rcall all_data_out	; 0000
-        rcall d7_out_high       ; 1000
-        rcall e_pulse           ;
-	rcall all_data_in	;
-        rcall rs_out_low       ;
+	rcall e_pulse		; HIGH TETRADE
+        rcall all_data_out	; 0000
+	rcall d7_out_high	; 1000
+	rcall e_pulse ; LOW TETRADE
+        rcall all_data_in ;
         rcall wait_bf           ;
+
 	; e
+        rcall rs_out_high        ;
+        rcall rw_out_low        ;
         rcall all_data_out      ; 0000
-        rcall d6_out_high       ; 0110
-	rcall d5_out_high	;
-        rcall e_pulse           ;
-        rcall all_data_in       ;
-        rcall rs_out_low       ;
-        rcall wait_bf           ;
-        rcall rs_out_high       ;
+        rcall d6_out_high       ; 0100
+        rcall d5_out_high       ; 0110
+        rcall e_pulse           ; HIGH TETRADE
         rcall all_data_out      ; 0000
-        rcall d6_out_high       ; 0101
-	rcall d4_out_high	;
-        rcall e_pulse           ;
-        rcall all_data_in       ;
-        rcall rs_out_low       ;
+        rcall d6_out_high       ; 0100
+        rcall d4_out_high       ; 0101
+        rcall e_pulse           ; LOW TETRADE
         rcall wait_bf           ;
-	; l
+
+        ; l
+        rcall rs_out_high        ;
+        rcall rw_out_low        ;
         rcall all_data_out      ; 0000
-        rcall d6_out_high       ; 0110
-        rcall d5_out_high       ;
-        rcall e_pulse           ;
-        rcall all_data_in       ;
-        rcall rs_out_low       ;
-        rcall wait_bf           ;
-        rcall rs_out_high       ;
+        rcall d6_out_high       ; 0100
+        rcall d5_out_high       ; 0110
+        rcall e_pulse           ; HIGH TETRADE
         rcall all_data_out      ; 0000
-        rcall d7_out_high       ; 1100
-	rcall d6_out_high	;
-        rcall e_pulse           ;
-        rcall all_data_in       ;
-        rcall rs_out_low       ;
+        rcall d7_out_high       ; 1000
+        rcall d6_out_high       ; 1100
+        rcall e_pulse           ; LOW TETRADE
+        rcall rw_out_high       ;
         rcall wait_bf           ;
-	; l
+
+        ; l
+        rcall rs_out_high        ;
+        rcall rw_out_low        ;
         rcall all_data_out      ; 0000
-        rcall d6_out_high       ; 0110
-        rcall e_pulse           ;
-        rcall all_data_in       ;
-        rcall rs_out_low       ;
-        rcall wait_bf           ;
-        rcall rs_out_high       ;
+        rcall d6_out_high       ; 0100
+        rcall d5_out_high       ; 0110
+        rcall e_pulse           ; HIGH TETRADE
         rcall all_data_out      ; 0000
-        rcall d7_out_high       ; 1100
-        rcall d6_out_high       ;
-        rcall e_pulse           ;
-        rcall all_data_in       ;
-        rcall rs_out_low       ;
+        rcall d7_out_high       ; 1000
+        rcall d6_out_high       ; 1100
+        rcall e_pulse           ; LOW TETRADE
         rcall wait_bf           ;
-	; o
+
+        ; o
+        rcall rs_out_high        ;
+        rcall rw_out_low        ;
         rcall all_data_out      ; 0000
-        rcall d6_out_high       ; 0110
-        rcall d5_out_high       ;
-        rcall e_pulse           ;
-        rcall all_data_in       ;
-        rcall rs_out_low       ;
-        rcall wait_bf           ;
-        rcall rs_out_high       ;
+        rcall d6_out_high       ; 0100
+        rcall d5_out_high       ; 0110
+        rcall e_pulse           ; HIGH TETRADE
         rcall all_data_out      ; 0000
-        rcall d7_out_high       ; 1111
-        rcall d6_out_high       ;
-        rcall d5_out_high       ;
-        rcall d4_out_high       ;
-        rcall e_pulse           ;
-        rcall all_data_in       ;
-        rcall rs_out_low       ;
+        rcall d7_out_high       ; 1000
+        rcall d6_out_high       ; 1100
+        rcall d5_out_high       ; 1110
+        rcall d4_out_high       ; 1111
+        rcall e_pulse           ; LOW TETRADE
         rcall wait_bf           ;
+
 ret				;
+
+wait_bf:                        ;
+;        rcall delay_1ms
+	rcall rs_out_low	;
+        rcall rw_out_high       ;
+	rcall all_data_in	;
+        rcall e_out_high	;
+        wb1:                    ;
+        sbic DATI, DATA7        ; wait BF cleared
+        rjmp wb1                ;
+	rcall e_out_low		;
+	nop			;
+	rcall e_pulse           ;
+ret                             ;
+
+e_pulse:                        ;
+        nop
+        nop
+        nop
+        nop
+        rcall e_out_high        ;
+        nop
+        nop
+        nop
+        nop
+        rcall e_out_low         ;
+        nop
+        nop
+        nop
+        nop
+ret                             ;
 
 lcd_init:				;
         rcall delay_20ms                ; >= 40 ms
         rcall delay_20ms                ;
+	rcall rs_out_low		;
+	rcall rw_out_low		;
 			; 8-bit mode
         rcall all_data_out              ; def. low
 	rcall d4_out_high		;
@@ -138,101 +161,62 @@ lcd_init:				;
         rcall delay_1ms                 ;
         rcall delay_1ms                 ;
         rcall delay_1ms                 ;
-
         rcall e_pulse                   ; 2
         rcall delay_100us                ;
-
 	rcall e_pulse			; 3
         rcall delay_100us                ;
-
         rcall d4_out_low                ; 0010 - pre function
         rcall e_pulse                   ; 4
-        rcall all_data_in               ;
         rcall delay_100us                ;
-
 			; 4-bit mode
         rcall all_data_out              ;
         rcall d5_out_high               ; 0010 - function set, 4 bit mode
 	rcall e_pulse			; 5
-	rcall all_data_in		;
-	rcall wait_bf			;
-
 	rcall all_data_out		;
         rcall d7_out_high               ; 1000 - function set cont. 2 lines, 5x8 font, - -
         rcall e_pulse                   ; 6
         rcall all_data_in               ;
+        rcall rw_out_high               ;
         rcall wait_bf                   ;
-
-        rcall all_data_out              ; 0000 - display on/off
+        rcall rw_out_low               ;
+        rcall all_data_out              ; 0000 - display
         rcall e_pulse                   ; 7
-        rcall all_data_in               ;
-        rcall wait_bf                   ;
-
-        rcall all_data_out              ;
         rcall d7_out_high               ; 1000 - off
         rcall e_pulse                   ; 8
         rcall all_data_in               ;
+        rcall rw_out_high               ;
         rcall wait_bf                   ;
-
+        rcall rw_out_low               ;
         rcall all_data_out              ; 0000 - display
         rcall e_pulse                   ; 9
-        rcall all_data_in               ;
-        rcall wait_bf                   ;
-
-        rcall all_data_out              ;
         rcall d4_out_high               ; 0001 - clear
         rcall e_pulse                   ; 10
         rcall all_data_in               ;
+        rcall rw_out_high               ;
         rcall wait_bf                   ;
-
+        rcall rw_out_low               ;
         rcall all_data_out              ; 0000 - entry
         rcall e_pulse                   ; 11
-        rcall all_data_in               ;
-        rcall wait_bf                   ;
-
-        rcall all_data_out              ;
         rcall d6_out_high               ; 0100 - mode
         rcall d5_out_high               ; 0110
         rcall e_pulse                   ; 12
         rcall all_data_in               ;
+        rcall rw_out_high               ;
         rcall wait_bf                   ;
-
-        rcall all_data_out              ; 0000 - display on/off
+        rcall rw_out_low               ;
+        rcall all_data_out              ; 0000 - display
         rcall e_pulse                   ; 13
-        rcall all_data_in               ;
-        rcall wait_bf                   ;
-
-        rcall all_data_out              ;
         rcall d7_out_high               ; 1000
         rcall d6_out_high               ; 1100 - on
-        ;rcall d5_out_high               ; 1110 - w/ cursor
-        ;rcall d4_out_high               ; 1111 - w/ blinking
+        rcall d5_out_high               ; 1110 - w/ cursor
+        rcall d4_out_high               ; 1111 - w/ blinking
         rcall e_pulse                   ; 14
         rcall all_data_in               ;
+        rcall rw_out_high               ;
         rcall wait_bf                   ;
-        rcall delay_20ms                ;
-
-        rcall all_data_out              ; voila
+        rcall rw_out_low               ;
+        rcall delay_20ms                ; voila
 ret					;
-
-wait_bf:			;
-	rcall rw_out_high	;
-	rcall e_out_high	;
-	wb1:			;
-        sbic DATI, DATA7        ;
-	rjmp wb1		;
-	rcall e_out_low		;
-	rcall rw_out_low	;
-ret				;
-
-e_pulse:			;
-	rcall e_out_high	;
-        nop                     ;
-        nop                     ;
-	nop
-        nop                     ;
-	rcall e_out_low		;
-ret				;
 
 ports_init:			;
 	rcall rs_out_low	;
@@ -263,6 +247,11 @@ d4_in_low:                      ;
         cbi DATP, DATA4         ;
 ret		                ;
 
+d4_in_high:                     ;
+        cbi DATD, DATA4         ;
+        sbi DATP, DATA4         ;
+ret                             ;
+
 d4_out_low:                     ;
         sbi DATD, DATA4         ;
         cbi DATP, DATA4         ;
@@ -277,6 +266,11 @@ d5_in_low:                      ;
         cbi DATD, DATA5         ;
         cbi DATP, DATA5         ;
 ret 	                        ;
+
+d5_in_high:                     ;
+        cbi DATD, DATA5         ;
+        sbi DATP, DATA5         ;
+ret                             ;
 
 d5_out_low:                     ;
         sbi DATD, DATA5         ;
@@ -293,6 +287,11 @@ d6_in_low:                      ;
         cbi DATP, DATA6         ;
 ret	                        ;
 
+d6_in_high:                     ;
+        cbi DATD, DATA6         ;
+        sbi DATP, DATA6         ;
+ret                             ;
+
 d6_out_low:                     ;
         sbi DATD, DATA6         ;
         cbi DATP, DATA6         ;
@@ -307,6 +306,11 @@ d7_in_low:                      ;
         cbi DATD, DATA7         ;
     	cbi DATP, DATA7         ;
 ret		                ;
+
+d7_in_high:                     ;
+        cbi DATD, DATA7         ;
+        sbi DATP, DATA7         ;
+ret                             ;
 
 d7_out_low:                     ;
         sbi DATD, DATA7         ;
@@ -400,5 +404,6 @@ led_init:			;
 ret				;
 
 led_on:				;
+	rcall led_init		;
         sbi PORTD, PD7          ; D7 high
 ret				;
