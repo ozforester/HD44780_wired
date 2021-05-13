@@ -1,6 +1,9 @@
 ; пятый порт не поднимается, поэтому может вместо прописной заглавная выводиться
+<<<<<<< HEAD
 ; и тут нужен осциллограф или в точке интереса
 ; прокомментировать состояние всех выводов интерфейса
+=======
+>>>>>>> a99e84af11efa4e649a17eb635acfe69e3a4f206
 
 ; Copyright (c) 2021 ozforester. All rights reserved.
 ; Use of this source code is goverened by a MIT license
@@ -40,12 +43,17 @@ main:				;
 	rcall ports_init	;
 	rcall lcd_init		;
 	rcall lcd_hello		;
+<<<<<<< HEAD
         rcall led_on            ; no hanging
+=======
+        ;rcall led_on            ; passed
+>>>>>>> a99e84af11efa4e649a17eb635acfe69e3a4f206
 	loop:			;
 	rjmp loop 		;
 ret				;
 
 lcd_hello:			;
+<<<<<<< HEAD
 
 	; H			; 01001000
         rcall rs_out_high       ;
@@ -62,6 +70,25 @@ lcd_hello:			;
 	; e
         rcall rs_out_high        ;
         rcall rw_out_low        ;
+=======
+	rcall rs_out_high	;
+	rcall rw_out_low	;
+	; H			; 01001000
+;        rcall all_data_out      ; 0000
+;	rcall d6_out_high	; 0100
+;	rcall e_pulse		;
+;	rcall all_data_in	;
+;        rcall rs_out_low       ;
+;	rcall wait_bf		;
+;        rcall rs_out_high       ;
+;	rcall all_data_out	; 0000
+;        rcall d7_out_high       ; 1000
+;        rcall e_pulse           ;
+;	rcall all_data_in	;
+;        rcall rs_out_low       ;
+;        rcall wait_bf           ;
+	; e			; 01100101
+>>>>>>> a99e84af11efa4e649a17eb635acfe69e3a4f206
         rcall all_data_out      ; 0000
         rcall d6_out_high       ; 0100
         rcall d5_out_high       ; 0110
@@ -71,10 +98,15 @@ lcd_hello:			;
         rcall d4_out_high       ; 0101
         rcall e_pulse           ; LOW TETRADE
         rcall wait_bf           ;
+<<<<<<< HEAD
 
         ; l
         rcall rs_out_high        ;
         rcall rw_out_low        ;
+=======
+ret
+	; l
+>>>>>>> a99e84af11efa4e649a17eb635acfe69e3a4f206
         rcall all_data_out      ; 0000
         rcall d6_out_high       ; 0100
         rcall d5_out_high       ; 0110
@@ -218,6 +250,43 @@ lcd_init:				;
         rcall delay_20ms                ; voila
 ret					;
 
+<<<<<<< HEAD
+=======
+wait_bf:			;
+	rcall rw_out_high	;
+	rcall e_out_high	;
+	wb1:			;
+        sbic DATI, DATA7        ;
+	rjmp wb1		;
+	rcall e_out_low		;
+	rcall rw_out_low	;
+ret				;
+
+e_pulse:			;
+	rcall e_out_high	;
+        nop                     ;
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop                     ;
+	nop
+        nop                     ;
+	rcall e_out_low		;
+ret				;
+
+>>>>>>> a99e84af11efa4e649a17eb635acfe69e3a4f206
 ports_init:			;
 	rcall rs_out_low	;
 	rcall rw_out_low	;
