@@ -1,3 +1,4 @@
+; пятый порт не поднимается, поэтому может вместо прописной заглавная выводиться
 
 ; Copyright (c) 2021 ozforester. All rights reserved.
 ; Use of this source code is goverened by a MIT license
@@ -37,7 +38,7 @@ main:				;
 	rcall ports_init	;
 	rcall lcd_init		;
 	rcall lcd_hello		;
-        ;rcall led_on            ;
+        ;rcall led_on            ; passed
 	loop:			;
 	rjmp loop 		;
 ret				;
@@ -45,21 +46,21 @@ ret				;
 lcd_hello:			;
 	rcall rs_out_high	;
 	rcall rw_out_low	;
-	; H
-        rcall all_data_out      ; 0000
-	rcall d6_out_high	; 0100
-	rcall e_pulse		;
-	rcall all_data_in	;
-        rcall rs_out_low       ;
-	rcall wait_bf		;
-        rcall rs_out_high       ;
-	rcall all_data_out	; 0000
-        rcall d7_out_high       ; 1000
-        rcall e_pulse           ;
-	rcall all_data_in	;
-        rcall rs_out_low       ;
-        rcall wait_bf           ;
-	; e
+	; H			; 01001000
+;        rcall all_data_out      ; 0000
+;	rcall d6_out_high	; 0100
+;	rcall e_pulse		;
+;	rcall all_data_in	;
+;        rcall rs_out_low       ;
+;	rcall wait_bf		;
+;        rcall rs_out_high       ;
+;	rcall all_data_out	; 0000
+;        rcall d7_out_high       ; 1000
+;        rcall e_pulse           ;
+;	rcall all_data_in	;
+;        rcall rs_out_low       ;
+;        rcall wait_bf           ;
+	; e			; 01100101
         rcall all_data_out      ; 0000
         rcall d6_out_high       ; 0110
 	rcall d5_out_high	;
@@ -75,6 +76,7 @@ lcd_hello:			;
         rcall all_data_in       ;
         rcall rs_out_low       ;
         rcall wait_bf           ;
+ret
 	; l
         rcall all_data_out      ; 0000
         rcall d6_out_high       ; 0110
@@ -228,6 +230,21 @@ ret				;
 e_pulse:			;
 	rcall e_out_high	;
         nop                     ;
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
         nop                     ;
 	nop
         nop                     ;
@@ -400,5 +417,6 @@ led_init:			;
 ret				;
 
 led_on:				;
+	rcall led_init		;
         sbi PORTD, PD7          ; D7 high
 ret				;
