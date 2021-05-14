@@ -130,6 +130,9 @@ wait_bf:                        ;
         sbic DATI, DATA7        ; wait BF cleared
         rjmp wb1                ;
 	rcall e_out_low		;
+        nop                     ;
+        nop                     ;
+        nop                     ;
 	nop			;
 	rcall e_pulse           ;
 ret                             ;
