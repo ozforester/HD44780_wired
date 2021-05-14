@@ -1,6 +1,4 @@
-; пятый порт не поднимается, поэтому может вместо прописной заглавная выводиться
-; и тут нужен осциллограф или в точке интереса
-; прокомментировать состояние всех выводов интерфейса
+; need reading more assembly info for string tricks..
 
 ; Copyright (c) 2021 ozforester. All rights reserved.
 ; Use of this source code is goverened by a MIT license
@@ -26,7 +24,7 @@
 #define DATA6 PC2
 #define DATA7 PC3
 
-temp =  16			; good worker
+temp  = 16			; good worker
 tcntr = 18			; time counter
 
 .text				;
@@ -40,10 +38,16 @@ main:				;
 	rcall ports_init	;
 	rcall lcd_init		;
 	rcall lcd_hello		;
-        rcall led_on            ; no hanging
+        ;rcall led_on            ; no hanging
 	loop:			;
 	rjmp loop 		;
 ret				;
+
+lcd_char:			;
+				; convert char
+				; send high nibble
+				; send low nibble
+	ret			;
 
 lcd_hello:			;
 
@@ -131,20 +135,12 @@ wait_bf:                        ;
 ret                             ;
 
 e_pulse:                        ;
-        nop
-        nop
-        nop
-        nop
         rcall e_out_high        ;
         nop
         nop
         nop
         nop
         rcall e_out_low         ;
-        nop
-        nop
-        nop
-        nop
 ret                             ;
 
 lcd_init:				;
