@@ -1,4 +1,5 @@
 ; need reading more assembly info for string tricks..
+; hmm.. interesting, continue reading (:
 
 ; Copyright (c) 2021 ozforester. All rights reserved.
 ; Use of this source code is goverened by a MIT license
@@ -27,9 +28,12 @@
 temp  = 16			; good worker
 tcntr = 18			; time counter
 
+.data
+	.byte 0x10		; lcd message
+
 .text				;
-.global main			;
-.global TIMER0_OVF_vect		;
+	.global main		;
+	.global TIMER0_OVF_vect	;
 
 main:				;
         rcall led_init          ;
