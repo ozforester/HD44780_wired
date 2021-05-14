@@ -15,7 +15,7 @@
 #define CTRP PORTB
 #define CTR_RS PB0
 #define CTR_RW PB1
-#define CTR_E PB2
+#define CTR_E  PB2
 #define DATD DDRC
 #define DATP PORTC
 #define DATI PINC
