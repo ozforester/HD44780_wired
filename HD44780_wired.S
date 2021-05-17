@@ -6,9 +6,9 @@
 
 ; ATmega8 @4MHz internal osc. (H:D9, L:23)
 ; HD44780_wired.S "Hello world"
-; -compromised solution-
+; prints greeting in 4bit mode
 
-; atmega8, instruction set avr4
+; atmega8
 
 #undef __SFR_OFFSET
 #define __SFR_OFFSET 0
@@ -64,7 +64,7 @@ lcd_string:			;
 	lpm			; read msg word into r0
 	mov char, accum		; copy word into char register
 	rcall lcd_char		; write one 4bit mode char
-	inc zl			; next 16 bit world of msg
+        inc zl                  ; next 16 bit world of msg
 	dec temp		; one less msg left
 	brne ls1		; if not Z go next
 ret				; or exit
