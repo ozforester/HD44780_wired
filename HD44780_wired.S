@@ -29,7 +29,7 @@
 
 accum = 0			; r0
 temp  = 16			; good worker (.set)
-char  = 17			; temp char
+char  = 17			; msg char
 tcntr = 18			; time counter
 
 .data
@@ -45,7 +45,6 @@ main:				;
         rcall delay_20ms        ;
 	rcall ports_init	;
 	rcall lcd_init		;
-	rcall msg		;
 	rcall lcd_string	;
         ;rcall led_on            ; j-tag (:
 	loop:			;
@@ -69,6 +68,8 @@ lcd_string:			;
 ret				; or exit
 
 strlen:				; count length of msg
+        ;ldi temp, 7             ; debugging
+	;ret			; debugging
 	push zh			; save msg pointer
 	push zl			; to stack
 	clr temp		; clear counter
