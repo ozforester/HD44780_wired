@@ -1,12 +1,14 @@
-; need reading more assembly info for string tricks..
-; hmm.. interesting, continue reading (:
+; somewhere in strlen hides an error
 
 ; Copyright (c) 2021 ozforester. All rights reserved.
 ; Use of this source code is goverened by a MIT license
 ; that can be found in the LICENSE file.
 
 ; ATmega8 @4MHz internal osc. (H:D9, L:23)
-; HD44780_wired.S "Hello world!"
+; HD44780_wired.S "Hello world"
+; -compromised solution-
+
+; atmega8, instruction set avr4
 
 #undef __SFR_OFFSET
 #define __SFR_OFFSET 0
@@ -25,15 +27,17 @@
 #define DATA6 PC2
 #define DATA7 PC3
 
-temp  = 16			; good worker
+accum = 0			; r0
+temp  = 16			; good worker (.set)
+char  = 17			; temp char
 tcntr = 18			; time counter
 
 .data
-	.byte 0x10		; lcd message
 
-.text				;
-	.global main		;
-	.global TIMER0_OVF_vect	;
+.text
+
+.global main			;
+.global TIMER0_OVF_vect		;
 
 main:				;
         rcall led_init          ;
@@ -41,91 +45,78 @@ main:				;
         rcall delay_20ms        ;
 	rcall ports_init	;
 	rcall lcd_init		;
-	rcall lcd_hello		;
-        ;rcall led_on            ; no hanging
+	rcall msg		;
+	rcall lcd_string	;
+        ;rcall led_on            ; j-tag (:
 	loop:			;
 	rjmp loop 		;
 ret				;
 
-lcd_char:			;
-				; convert char
-				; send high nibble
-				; send low nibble
-	ret			;
-
-lcd_hello:			;
-
-	; H			; 01001000
-        rcall rs_out_high       ;
-        rcall rw_out_low        ;
-        rcall all_data_out      ; 0000
-	rcall d6_out_high	; 0100
-	rcall e_pulse		; HIGH TETRADE
-        rcall all_data_out	; 0000
-	rcall d7_out_high	; 1000
-	rcall e_pulse ; LOW TETRADE
-        rcall all_data_in ;
-        rcall wait_bf           ;
-
-	; e
-        rcall rs_out_high        ;
-        rcall rw_out_low        ;
-        rcall all_data_out      ; 0000
-        rcall d6_out_high       ; 0100
-        rcall d5_out_high       ; 0110
-        rcall e_pulse           ; HIGH TETRADE
-        rcall all_data_out      ; 0000
-        rcall d6_out_high       ; 0100
-        rcall d4_out_high       ; 0101
-        rcall e_pulse           ; LOW TETRADE
-        rcall wait_bf           ;
-
-        ; l
-        rcall rs_out_high        ;
-        rcall rw_out_low        ;
-        rcall all_data_out      ; 0000
-        rcall d6_out_high       ; 0100
-        rcall d5_out_high       ; 0110
-        rcall e_pulse           ; HIGH TETRADE
-        rcall all_data_out      ; 0000
-        rcall d7_out_high       ; 1000
-        rcall d6_out_high       ; 1100
-        rcall e_pulse           ; LOW TETRADE
-        rcall rw_out_high       ;
-        rcall wait_bf           ;
-
-        ; l
-        rcall rs_out_high        ;
-        rcall rw_out_low        ;
-        rcall all_data_out      ; 0000
-        rcall d6_out_high       ; 0100
-        rcall d5_out_high       ; 0110
-        rcall e_pulse           ; HIGH TETRADE
-        rcall all_data_out      ; 0000
-        rcall d7_out_high       ; 1000
-        rcall d6_out_high       ; 1100
-        rcall e_pulse           ; LOW TETRADE
-        rcall wait_bf           ;
-
-        ; o
-        rcall rs_out_high        ;
-        rcall rw_out_low        ;
-        rcall all_data_out      ; 0000
-        rcall d6_out_high       ; 0100
-        rcall d5_out_high       ; 0110
-        rcall e_pulse           ; HIGH TETRADE
-        rcall all_data_out      ; 0000
-        rcall d7_out_high       ; 1000
-        rcall d6_out_high       ; 1100
-        rcall d5_out_high       ; 1110
-        rcall d4_out_high       ; 1111
-        rcall e_pulse           ; LOW TETRADE
-        rcall wait_bf           ;
-
+msg: .asciz "Hello world"       ;
 ret				;
 
-wait_bf:                        ;
-;        rcall delay_1ms
+lcd_string:			;
+        ldi zh, hi8(msg) 	; z *-> msg
+        ldi zl,	lo8(msg)	;
+	rcall strlen		; length in temp register
+	ls1:			;
+	lpm			; read msg word into r0
+	mov char, accum		; copy word into char register
+	rcall lcd_char		; write one 4bit mode char
+	inc zl			; next 16 bit world of msg
+	dec temp		; one less msg left
+	brne ls1		; if not Z go next
+ret				; or exit
+
+strlen:				; count length of msg
+	push zh			; save msg pointer
+	push zl			; to stack
+	clr temp		; clear counter
+	sl1:			;
+	lpm			; read msg byte into r0
+	mov char, accum		; copy r0 into char
+	cpi char, 0		; end of string? (seems it always non zero)
+	breq sl2		; yes,  '\0' terminator
+	inc temp		; increment length counter
+	inc zl			; increment Z
+	rjmp sl1		; and continue read flash
+	sl2:			;
+	pop zl			; restore flash pointer
+	pop zh			; from stack
+	;ldi temp, 7		; debugging
+ret				;
+
+lcd_char:			; write one character
+        rcall rs_out_high       ;
+        rcall rw_out_low        ;
+        ; low nibble, w/o mask, bit by bit
+        rcall all_data_out      ; 0000
+	sbrc char, 7		;
+	rcall d7_out_high	;
+        sbrc char, 6            ;
+        rcall d6_out_high       ;
+        sbrc char, 5            ;
+        rcall d5_out_high       ;
+        sbrc char, 4            ;
+        rcall d4_out_high       ;
+        rcall e_pulse           ; HIGH TETRADE
+	; high nibble
+        rcall all_data_out      ; 0000
+        sbrc char, 3            ;
+        rcall d7_out_high       ;
+        sbrc char, 2            ;
+        rcall d6_out_high       ;
+        sbrc char, 1            ;
+        rcall d5_out_high       ;
+        sbrc char, 0            ;
+        rcall d4_out_high       ;
+        rcall e_pulse 		; LOW TETRADE
+        rcall all_data_in 	;
+        rcall wait_bf           ;
+ret				;
+
+wait_bf:                        ; wait until busy flag cleared
+;        rcall delay_1ms	; debugging
 	rcall rs_out_low	;
         rcall rw_out_high       ;
 	rcall all_data_in	;
@@ -143,10 +134,10 @@ ret                             ;
 
 e_pulse:                        ;
         rcall e_out_high        ;
-        nop
-        nop
-        nop
-        nop
+        nop			;
+        nop			;
+        nop			; about us
+        nop			;
         rcall e_out_low         ;
 ret                             ;
 
