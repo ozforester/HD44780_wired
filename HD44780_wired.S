@@ -51,12 +51,14 @@ main:				;
 	rjmp loop 		;
 ret				;
 
-msg: .asciz "Hello world"       ;
+msg1: .asciz "Hello world"       ;
+msg2: .asciz "Hello world"       ;
+
 ret				;
 
 lcd_string:			;
-        ldi zh, hi8(msg) 	; z *-> msg
-        ldi zl,	lo8(msg)	;
+        ldi zh, hi8(msg1) 	; z *-> msg
+        ldi zl,	lo8(msg1)	;
 	rcall strlen		; length in temp register
 	ls1:			;
 	lpm			; read msg word into r0
