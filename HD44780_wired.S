@@ -9,6 +9,13 @@
 ; prints greeting in 4bit mode
 
 ; atmega8
+;
+; LED PD7
+; E - PB2
+; R/W - PB1
+; R/S - PB0
+; D7-D4 - PC3-PC0
+; SPI programmer - upgraded USB-ISP
 
 #undef __SFR_OFFSET
 #define __SFR_OFFSET 0
