@@ -1,5 +1,3 @@
-; somewhere in strlen hides an error
-
 ; Copyright (c) 2021 ozforester. All rights reserved.
 ; Use of this source code is goverened by a MIT license
 ; that can be found in the LICENSE file.
@@ -16,6 +14,7 @@
 ; R/S - PB0
 ; D7-D4 - PC3-PC0
 ; SPI programmer - upgraded USB-ISP
+; contrast  divider soldered on lcd back side
 
 #undef __SFR_OFFSET
 #define __SFR_OFFSET 0
